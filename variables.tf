@@ -1,5 +1,5 @@
 variable "public_key_path" {
-  description = "~/.ssh/terraform.pub"
+  default = "~/.ssh/teamunpro-pw.pub"
 }
 
 variable "key_name" {
