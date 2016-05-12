@@ -2,11 +2,6 @@ provider "aws" {
   region = "${var.aws_region}"
 }
 
-resource "aws_key_pair" "auth" {
-  key_name   = "${var.key_name}"
-  public_key = "${file(var.public_key_path)}"
-}
-
 #
 # Network
 #
@@ -96,8 +91,8 @@ resource "aws_security_group" "default" {
   vpc_id      = "${aws_vpc.default.id}"
 
   ingress {
-    from_port   = -1
-    to_port     = -1
+    from_port   = 0
+    to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["${aws_subnet.public.cidr_block}", "${var.vpn_cidr_block}"]
   }
@@ -302,7 +297,7 @@ resource "aws_iam_instance_profile" "salt_master" {
 }
 
 resource "aws_iam_instance_profile" "default" {
-    name = "SaltMasterInstanceProfile"
+    name = "DefaultInstanceProfile"
     roles = ["${aws_iam_role.default.name}"]
 }
 
@@ -321,15 +316,15 @@ resource "aws_instance" "ecs" {
     user = "ec2-user"
   }
 
-  instance_type = "m2.micro"
+  instance_type = "t2.micro"
 
   ami = "${lookup(var.aws_ecs_amis, var.aws_region)}"
 
-  key_name = "${aws_key_pair.auth.id}"
+  key_name = "${var.key_name}"
 
   iam_instance_profile = "${aws_iam_instance_profile.ecs.id}"
 
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+  vpc_security_group_ids = ["${aws_security_group.default.id}","${aws_security_group.ssh.id}","${aws_security_group.mumble.id}"]
 
   subnet_id = "${aws_subnet.public.id}"
 
@@ -351,13 +346,13 @@ resource "aws_instance" "nat" {
     user = "ec2-user"
   }
 
-  instance_type = "m2.nano"
+  instance_type = "t2.nano"
 
   ami = "${lookup(var.aws_nat_amis, var.aws_region)}"
 
-  key_name = "${aws_key_pair.auth.id}"
+  key_name = "${var.key_name}"
 
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+  vpc_security_group_ids = ["${aws_security_group.default.id}","${aws_security_group.ssh.id}"]
 
   subnet_id = "${aws_subnet.public.id}"
 
@@ -375,15 +370,15 @@ resource "aws_instance" "salt-master" {
     user = "ubuntu"
   }
 
-  instance_type = "m2.nano"
+  instance_type = "t2.nano"
 
   ami = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
 
   iam_instance_profile = "${aws_iam_instance_profile.salt_master.id}"
 
-  key_name = "${aws_key_pair.auth.id}"
+  key_name = "${var.key_name}"
 
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+  vpc_security_group_ids = ["${aws_security_group.default.id}","${aws_security_group.ssh.id}"]
 
   subnet_id = "${aws_subnet.private.id}"
 
@@ -401,13 +396,13 @@ resource "aws_instance" "vpn" {
     user = "ubuntu"
   }
 
-  instance_type = "m2.nano"
+  instance_type = "t2.nano"
 
   ami = "${lookup(var.aws_ubuntu_amis, var.aws_region)}"
 
-  key_name = "${aws_key_pair.auth.id}"
+  key_name = "${var.key_name}"
 
-  vpc_security_group_ids = ["${aws_security_group.default.id}"]
+  vpc_security_group_ids = ["${aws_security_group.default.id}","${aws_security_group.ssh.id}"]
 
   source_dest_check = "false"
 

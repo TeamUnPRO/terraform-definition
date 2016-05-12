@@ -13,19 +13,19 @@ variable "aws_region" {
 
 variable "aws_ecs_amis" {
   default = {
-    us-east-1 = "ami-de7ab6b6"
+    us-east-1 = "ami-a1fa1acc"
   }
 }
 
 variable "aws_nat_amis" {
   default = {
-    us-east-1 = "ami-de7ab6b6"
+    us-east-1 = "ami-f5f41398"
   }
 }
 
 variable "aws_ubuntu_amis" {
   default = {
-    us-east-1 = "ami-de7ab6b6"
+    us-east-1 = "ami-840910ee"
   }
 }
 
