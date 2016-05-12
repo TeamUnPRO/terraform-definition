@@ -167,7 +167,11 @@ resource "aws_iam_role_policy" "salt_pillar" {
       "Action": "s3:*",
       "Resource": [
         "arn:aws:s3:::pillar-teamunpro",
-        "arn:aws:s3:::pillar-teamunpro/*"
+        "arn:aws:s3:::pillar-teamunpro/*",
+        "arn:aws:s3:::pillar-secrets-teamunpro",
+        "arn:aws:s3:::pillar-secrets-teamunpro/*"
+        "arn:aws:s3:::salt-teamunpro/*"
+        "arn:aws:s3:::salt-teamunpro/*"
       ]
     }
   ]
@@ -356,7 +360,7 @@ resource "aws_instance" "nat" {
 
   subnet_id = "${aws_subnet.public.id}"
 
-  user_data = "${file("scripts/salt-minion.sh")}"
+  user_data = "${file("scripts/salt-minion.yml")}"
 }
 
 resource "aws_instance" "salt-master" {
@@ -382,7 +386,7 @@ resource "aws_instance" "salt-master" {
 
   subnet_id = "${aws_subnet.private.id}"
 
-  user_data = "${file("scripts/salt-master.sh")}"
+  user_data = "${file("scripts/salt-master.yml")}"
 }
 
 resource "aws_instance" "vpn" {
@@ -408,5 +412,5 @@ resource "aws_instance" "vpn" {
 
   subnet_id = "${aws_subnet.public.id}"
 
-  user_data = "${file("scripts/salt-minion.sh")}"
+  user_data = "${file("scripts/salt-minion.yml")}"
 }

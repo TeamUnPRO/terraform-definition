@@ -1,0 +1,15 @@
+#cloud-init
+package_upgrade: true
+package_update: true
+
+packages:
+ - awscli
+ - python-pygit2
+ - git
+ - jq
+
+run_cmd:
+ - aws --region us-east-1 s3 cp --recursive s3://pillar-secrets-teamunpro /srv/pillar/production
+ - aws --region us-east-1 s3 cp --recursive s3://pillar-teamunpro /srv/pillar/base
+ - curl -L https://raw.githubusercontent.com/saltstack/salt-bootstrap/stable/bootstrap-salt.sh -O bootstrap-salt.sh
+ - sh bootstrap-salt.sh -M -A salt-master.aws.teamunpro -i $(aws --region us-east-1 ec2 describe-tags --filters Name=key,Values=Name Name=resource-id,Values=$(curl -s http://169.254.169.254/latest/meta-data/instance-id) | jq -r .Tags[0].Value) git v2016.3.0rc2
