@@ -328,11 +328,11 @@ resource "aws_instance" "ecs" {
 
   subnet_id = "${aws_subnet.public.id}"
 
-  provisioner "remote-exec" {
-    inline = [
-      "echo ECS_CLUSTER=${aws_ecs_cluster.default.name} >> /etc/ecs/ecs.config"
-    ]
-  }
+  user_data = <<EOF
+#cloud-config
+runcmd:
+ - echo ECS_CLUSTER=${aws_ecs_cluster.default.name} >> /etc/ecs/ecs.config
+EOF
 }
 
 resource "aws_instance" "nat" {
